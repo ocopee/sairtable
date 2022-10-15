@@ -1,11 +1,12 @@
 import { Controller } from "./controllers/Controller.ts";
-import { UserController } from "./controllers/user.ts";
+import { UserController as User } from "./controllers/user.ts";
 
 export class REST {
   controllers: { [url: string]: Controller };
   constructor() {
     this.controllers = {};
-    const Controllers = [UserController];
+    const Controllers = [User];
+
     Controllers.map((Controller) => {
       const controller = new Controller();
       const url = controller.url();
@@ -14,13 +15,14 @@ export class REST {
     });
     this.handler = this.handler.bind(this);
   }
+
   async handler(req: Request): Promise<Response> {
     const { url, headers } = req;
 
-    const key = url.replace(`https://` + headers.get("host"), "").replace(
-      `http://` + headers.get("host"),
-      "",
-    );
+    const key = url
+      .replace(`https://` + headers.get("host"), "")
+      .replace(`http://` + headers.get("host"), "");
+
     const controller = this.controllers[key];
     if (!controller) {
       return new Response("invalid router", {
